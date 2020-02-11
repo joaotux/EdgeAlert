@@ -12,11 +12,11 @@ class EdgeAlert {
 
   static void show(BuildContext context,
       {String title,
-      String description,
-      int duration,
-      int gravity,
-      Color backgroundColor,
-      IconData icon}) {
+        String description,
+        int duration,
+        int gravity,
+        Color backgroundColor,
+        IconData icon}) {
     OverlayView.createView(context,
         title: title,
         description: description,
@@ -24,6 +24,12 @@ class EdgeAlert {
         gravity: gravity,
         backgroundColor: backgroundColor,
         icon: icon);
+  }
+
+  static void close() async {
+    _controller.reverse();
+    await Future.delayed(Duration(milliseconds: 700));
+    OverlayView.dismiss();
   }
 }
 
@@ -42,11 +48,11 @@ class OverlayView {
 
   static void createView(BuildContext context,
       {String title,
-      String description,
-      int duration,
-      int gravity,
-      Color backgroundColor,
-      IconData icon}) {
+        String description,
+        int duration,
+        int gravity,
+        Color backgroundColor,
+        IconData icon}) {
     _overlayState = Navigator.of(context).overlay;
 
     if (!_isVisible) {
@@ -59,7 +65,7 @@ class OverlayView {
           overlayDuration: duration == null ? EdgeAlert.LENGTH_SHORT : duration,
           gravity: gravity == null ? EdgeAlert.TOP : gravity,
           backgroundColor:
-              backgroundColor == null ? Colors.grey : backgroundColor,
+          backgroundColor == null ? Colors.grey : backgroundColor,
           icon: icon == null ? Icons.notifications : icon,
         );
       });
@@ -87,19 +93,21 @@ class EdgeOverlay extends StatefulWidget {
 
   EdgeOverlay(
       {this.title,
-      this.description,
-      this.overlayDuration,
-      this.gravity,
-      this.backgroundColor,
-      this.icon});
+        this.description,
+        this.overlayDuration,
+        this.gravity,
+        this.backgroundColor,
+        this.icon});
 
   @override
   _EdgeOverlayState createState() => _EdgeOverlayState();
 }
 
+AnimationController _controller;
+
 class _EdgeOverlayState extends State<EdgeOverlay>
     with SingleTickerProviderStateMixin {
-  AnimationController _controller;
+
   Tween<Offset> _positionTween;
   Animation<Offset> _positionAnimation;
 
@@ -153,7 +161,7 @@ class _EdgeOverlayState extends State<EdgeOverlay>
       child: SlideTransition(
         position: _positionAnimation,
         child: Container(
-          width: MediaQuery.of(context).size.width,
+          width: 400,
           padding: EdgeInsets.fromLTRB(
               20,
               widget.gravity == 1 ? statusBarHeight + 20 : bottomHeight + 20,
@@ -188,25 +196,31 @@ class OverlayWidget extends StatelessWidget {
           Padding(padding: EdgeInsets.only(right: 15)),
           Expanded(
               child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              title == null
-                  ? Container()
-                  : Padding(
-                      padding: EdgeInsets.only(bottom: 10),
-                      child: Text(
-                        title,
-                        style: TextStyle(color: Colors.white, fontSize: 22),
-                      ),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  title == null
+                      ? Container()
+                      : Padding(
+                    padding: EdgeInsets.only(bottom: 10),
+                    child: Text(
+                      title,
+                      style: TextStyle(color: Colors.white, fontSize: 22),
                     ),
-              description == null
-                  ? Container()
-                  : Text(
-                      description,
-                      style: TextStyle(color: Colors.white, fontSize: 14),
-                    )
-            ],
-          )),
+                  ),
+                  description == null
+                      ? Container()
+                      : Text(
+                    description,
+                    style: TextStyle(color: Colors.white, fontSize: 14),
+                  )
+                ],
+              )),
+          FlatButton(
+            onPressed: () {
+              EdgeAlert.close();
+            },
+            child: Icon(Icons.close, color: Colors.white,),
+          )
         ],
       ),
     );
